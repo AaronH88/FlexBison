@@ -7,7 +7,7 @@ int yylex();
 
 %%
 sentence: NOUN {
-  printf("is a valid sentence!\n");}
+  printf("%s is a valid sentence!\n", $1);}
 %%
 
 int main()
