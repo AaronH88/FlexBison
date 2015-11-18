@@ -20,7 +20,7 @@ int main()
 }
 
 %}
-%token ADD TO NUM INT
+%token ADD TO NUM INT VARNAME FSTOP
 
 %%
 
@@ -30,12 +30,22 @@ statements:
 
 statement:
      two_add
+     |
+     declare_var
      ;
 
 two_add:
-        ADD NUM TO NUM
+        ADD NUM TO NUM FSTOP
 	{
-	  printf("Adding numbers\n");
+	  printf("Adding numbers %d to %d, Result is: %d\n", $2, $4, $2 + $4);
 	}
         ;
+
+declare_var:
+           INT VARNAME FSTOP
+	   {
+	     printf("Var: %s of size: %d\n" , $2, $1);
+	   }
+           ;
+
 %%
