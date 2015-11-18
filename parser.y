@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 int yyerror(char *s)
 {
   fprintf(stderr, "%s\n", s);
@@ -20,7 +19,7 @@ int main()
 }
 
 %}
-%token ADD TO NUM INT VARNAME FSTOP
+%token FSTOP COMMA TBEGIN TMOVE TREAD TPRINT TEND TADD TTO NUM INT VARNAME 
 
 %%
 
@@ -35,7 +34,7 @@ statement:
      ;
 
 two_add:
-        ADD NUM TO NUM FSTOP
+        TADD NUM TTO NUM FSTOP
 	{
 	  printf("Adding numbers %d to %d, Result is: %d\n", $2, $4, $2 + $4);
 	}
