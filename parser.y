@@ -19,32 +19,42 @@ int main()
 }
 
 %}
-%token FSTOP COMMA TBEGIN TMOVE TREAD TPRINT TEND TADD TTO NUM INT VARNAME 
+%token FSTOP COMMA TBEGIN TMOVE TREAD TPRINT TEND TADD TTO NUM INT VARNAME QUOTE 
 
 %%
+program: /* empty */
+        |
+        TBEGIN FSTOP smts TEND FSTOP
+	;
 
-statements:
-     | statements statement
-     ;
-
-statement:
-     two_add
+smts: /* empty */ 
      |
-     declare_var
+     smts smt
      ;
 
-two_add:
-        TADD NUM TTO NUM FSTOP
-	{
-	  printf("Adding numbers %d to %d, Result is: %d\n", $2, $4, $2 + $4);
+smt: keytoken statement FSTOP
+     ;
+
+keytoken: INT | TREAD | TMOVE | TADD | TPRINT
+        {
+	  printf("keytoken called\n");
 	}
         ;
 
-declare_var:
-           INT VARNAME FSTOP
-	   {
-	     printf("Var: %s of size: %d\n" , $2, $1);
-	   }
-           ;
+statement: definites deff
+     ;
+
+definites:  /* empty */
+         | definites deff separator
+	 ;
+
+separator: TTO | COMMA
+{ printf("separator called\n");}
+;
+
+deff: NUM | VARNAME | QUOTE
+    { printf("deff called\n");}
+;
+
 
 %%
