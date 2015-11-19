@@ -10,15 +10,15 @@
 
 "."      return FSTOP;
 ","      return COMMA;
-BEGIN    return TBEGIN;
-MOVE     return TMOVE;
-READ     return TREAD;
-PRINT    return TPRINT;
-END      return TEND;
-ADD      return TADD;
-TO       return TTO;
+(?i:BEGIN)    return TBEGIN;
+(?i:MOVE)     return TMOVE;
+(?i:READ)     return TREAD;
+(?i:PRINT)    return TPRINT;
+(?i:END)      return TEND;
+(?i:ADD)      return TADD;
+(?i:TO)       return TTO;
 [0-9]+   yylval=atoi(yytext); return NUM;
-[S]+     yylval=yyleng; return INT;
+[sS]+     yylval=yyleng; return INT;
 [a-zA-Z]+[a-zA-Z0-9\-\_]*    yylval=strdup(yytext);return VARNAME;
 ['^"'][a-zA-Z0-9\t \?]*['"$']  yylval=strdup(yytext); return QUOTE;
 
