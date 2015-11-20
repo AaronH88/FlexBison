@@ -1,6 +1,9 @@
 %{
 #include <stdio.h>
 #include <string.h>
+typedef int bool;
+#define true 1
+#define false 0
 
 int yyerror(char *s)
 {
@@ -12,11 +15,7 @@ int yywrap (void)
   return 1;
 }
 
-int main()
-{
-  yyparse();
-  return(0);
-}
+bool isVar(char* name);
 
 %}
 %token FSTOP COMMA TBEGIN TMOVE TREAD TPRINT TEND TADD TTO NUM INT VARNAME QUOTE 
@@ -32,29 +31,66 @@ smts: /* empty */
      smts smt
      ;
 
-smt: keytoken statement FSTOP
+smt: decloration FSTOP
+    |
+    add_move FSTOP
+    |
+    print_read FSTOP
+    ;
+
+decloration:
+       INT VARNAME
+       {
+
+
+       }
+       ;
+
+add_move:
+       TADD deff TTO deff
+       {
+
+       }
+       |
+       TMOVE deff TTO deff
+       {
+
+       }
+       ;
+
+print_read: /* not sure yet*/
+       TPRINT
+       {
+	 printf("Print found\n");
+       }
+       |
+       TREAD
+       {
+	 printf("Read found\n");
+       }
+       ;
+
+deff:
+     NUM
+     {
+       $$=$1;
+     }
+     |
+     VARNAME
+     {
+       /* make struct */
+     }
      ;
-
-keytoken: INT | TREAD | TMOVE | TADD | TPRINT
-        {
-	  printf("keytoken called\n");
-	}
-        ;
-
-statement: definites deff
-     ;
-
-definites:  /* empty */
-         | definites deff separator
-	 ;
-
-separator: TTO | COMMA
-{ printf("separator called\n");}
-;
-
-deff: NUM | VARNAME | QUOTE
-    { printf("deff called\n");}
-;
-
 
 %%
+
+bool isVar(char* name)
+{
+  return true;
+}
+
+int main()
+{
+  yyparse();
+  return(0);
+}
