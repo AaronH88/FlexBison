@@ -46,7 +46,7 @@ bool createVars(char* n, int s);
 
 %type<number> NUM
 %type<name> VARNAME
-%type<int> INT
+%type<number> INT
 %type<myT1> deff
 
 %%
@@ -70,7 +70,7 @@ smt: decloration FSTOP
 decloration:
        INT VARNAME
        {
-	 if(createVars(*$2, $1))
+	 if(createVars($2,$1))
 	   {
 	     printf("Varname: %s of size %d created\n", $2, $1);
 	   }
