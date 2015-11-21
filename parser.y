@@ -36,6 +36,9 @@ int isVar(char* name);
 bool createVars(char* n, int s);
 void numTOVar(int num, char* theVar);
 void varTOVar(char* var1, char* var2); 
+void moveNumTVar(int num, char* var);
+void moveVarTVar(char* var1, char* var2);
+
  
 %}
 %token FSTOP COMMA TBEGIN TMOVE TREAD TPRINT TEND TADD TTO NUM INT VARNAME QUOTE 
@@ -111,10 +114,22 @@ add_move:
        |
        TMOVE NUM TTO VARNAME
        {
-
+	 int num = $2;
+	 char* var = $4;
+	 printf("Moving num to var\n");
+	 moveNumTVar(num, var);
        }
        |
        TMOVE VARNAME TTO VARNAME
+       {
+	 char* var1;
+	 char* var2;
+	 var1 = $2;
+	 var2 = $4;
+	 printf("Moving var to var\n");
+	 moveVarTVar(var1, var2);
+
+       }
        ;
 
 print_read: /* not sure yet*/
@@ -255,12 +270,12 @@ void varTOVar(char* var1, char* var2)
 {
   int pos1 = isVar(var1);
   if(pos1 == -1){
-    printf("syntax error: Var %s dosent exist\n", *var1);
+    printf("syntax error: Var %s dosent exist\n", var1);
     exit(0);
   }
   int pos2 = isVar(var2);
   if(pos2 == -1){
-   printf("syntax error: Var %s dosent exist\n", *var2);
+   printf("syntax error: Var %s dosent exist\n", var2);
     exit(0);
   }
   struct var newVar;
@@ -276,6 +291,51 @@ void varTOVar(char* var1, char* var2)
 
   }
 
+}
+
+void moveNumTVar(int num, char* var)
+{
+  int pos = isVar(var);
+  if(pos == -1){
+    printf("syntax error: Var %s dosent exist\n", var);
+    exit(0);
+  }
+  struct var newVar;
+  newVar.name = variables[pos].name;
+  newVar.size = variables[pos].size;
+  newVar.value = num;
+  if(newVar.size >= getNumSs(newVar.value)){
+    variables[pos] = newVar;
+    printf("The new value of %s is %d\n", newVar.name, newVar.value);
+  }else {
+      printf("Runtime error: The value %d is too big for var %s\n", newVar.value , newVar.name);
+      exit(0);
+  }
+}
+
+void moveVarTVar(char* var1, char* var2)
+{
+  int pos = isVar(var2);
+  if(pos == -1){
+    printf("syntax error: Var %s dosent exist\n", *var2);
+    exit(0);
+  }
+  int pos1 = isVar(var1);
+  if(pos1 == -1){
+    printf("syntax error: Var %s dosent exist\n", *var1);
+    exit(0);
+  }
+  struct var newVar;
+  newVar.name = variables[pos].name;
+  newVar.size = variables[pos].size;
+  newVar.value = variables[pos1].value;
+  if(newVar.size >= getNumSs(newVar.value)){
+    variables[pos] = newVar;
+    printf("The new value of %s is %d\n", newVar.name, newVar.value);
+  }else {
+      printf("Runtime error: The value %d is too big for var %s\n", newVar.value , newVar.name);
+      exit(0);
+  }
 }
 
 int main()
