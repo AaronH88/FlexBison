@@ -30,9 +30,10 @@ int yywrap (void)
   return 1;
 }
 
- void printNamesOfVars();
-int isVar(char* name, int numOfVars);
+void printNamesOfVars();
+int isVar(char* name);
 bool createVars(char* n, int s);
+void fillInVar(struct var* theVar);
  
  
 %}
@@ -43,17 +44,22 @@ bool createVars(char* n, int s);
   int number;
   char* name;
   union myType* myT1;
+  struct var* aVar;
 }
 
 %type<number> NUM
 %type<name> VARNAME
 %type<number> INT
-%type<myT1> deff
+%type<aVar> deff
 
 %%
 program: /* empty */
         |
         TBEGIN FSTOP smts TEND FSTOP
+        {
+	  printf("Program complete, exiting\n");
+	  exit(0);
+	}
 	;
 
 smts: /* empty */ 
@@ -71,7 +77,7 @@ smt: decloration FSTOP
 decloration:
        INT VARNAME
        {
-	 printf("Before calling create Vars\n");
+	 //printf("Before calling create Vars\n");
 	 if(createVars($2,$1))
 	   {
 	     printf("Varname: %s of size %d created\n", $2, $1);
@@ -83,7 +89,23 @@ decloration:
 add_move:
        TADD deff TTO deff
        {
-
+	 printf("in add_move\n");
+	 struct var* var1;
+	 struct var* var2;
+	 var1= $2;
+	 var2= $4;
+	 /*check to see is deff is an int or var */
+	 printf("Before ifs\n");
+	 if(var1->value == NULL)
+	 {
+	   fillInVar(var1);
+	 }
+	 printf("After if 1\n"); 
+	 if(var2->value == NULL)
+	 {
+	   fillInVar(var2);
+	 }
+	 printf("Adding %d to %d, Result is: %d\n", var1->value , var2->value, var1->value + var2->value);
        }
        |
        TMOVE deff TTO deff
@@ -107,13 +129,27 @@ print_read: /* not sure yet*/
 deff:
      NUM
      {
-       $$=$1;
+       //printf("Making Numbers\n");
+       struct var theVar;
+       //printf("Made var\n");
+       theVar.name = "";
+       //printf("Set var name\n");
+       theVar.size = 0;
+       theVar.value = $1;
+       //printf("Var made, returning var\n");
+       $$=&theVar;
      }
      |
      VARNAME
      {
+       printf("Got varname, making var\n");
        /* make struct */
-       $$=$1;
+       struct var theVar;
+       theVar.name = $1;
+       theVar.size = 0;
+       theVar.value = NULL;
+       printf("Varname made, returning var\n");
+       $$=&theVar;
      }
      ;
 
@@ -135,15 +171,13 @@ void printNamesOfVars()
 }
 
 /* this method will return pos of var or -1 if var cant be found*/
-int isVar(char* name, int numOfVars)
+int isVar(char* name)
 {
   int pos = -1;
   //printNamesOfVars();
-  for (int i = 0; i < numOfVars; i++)
+  for (int i = 0; i < maxVars; i++)
   {
-    if(numOfVars == 0){
-      return 0;
-    }else if(!strcmp(variables[i].name, name)){
+    if(!strcmp(variables[i].name, name)){
       return i;
     }
   }
@@ -155,7 +189,7 @@ bool createVars(char* n, int s)
 {
   int length = sizeof(variables) / sizeof(variables[0]);
   /* first check to see if var has been declared already*/
-  int pos = isVar(n, length);
+  int pos = isVar(n);
   //printf("after isVar is called, pos is %d\n", pos);
   if(pos == -1){ /*var not declared already, store it now in finaly pos */
     struct var newVar;
@@ -173,6 +207,18 @@ bool createVars(char* n, int s)
     
   return true;
 }
+/*method that will fill in a var variable stored already*/
+void fillInVar(struct var* theVar)
+{
+  /* first check to see if the var exists, and if so get its pos*/
+  int pos = isVar(theVar->name);
+  if(pos == -1)
+  {
+
+  }
+  
+}
+
 
 int main()
 {
