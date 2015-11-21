@@ -30,11 +30,12 @@ int yywrap (void)
   return 1;
 }
 
+int getNumSs(int num);
 void printNamesOfVars();
 int isVar(char* name);
 bool createVars(char* n, int s);
-void fillInVar(struct var* theVar);
- 
+void numTOVar(int num, char* theVar);
+void varTOVar(char* var1, char* var2); 
  
 %}
 %token FSTOP COMMA TBEGIN TMOVE TREAD TPRINT TEND TADD TTO NUM INT VARNAME QUOTE 
@@ -87,31 +88,33 @@ decloration:
        ;
 
 add_move:
-       TADD deff TTO deff
+       TADD NUM TTO VARNAME
        {
 	 printf("in add_move\n");
-	 struct var* var1;
-	 struct var* var2;
-	 var1= $2;
+	 
+	 char* var2;
+	 int var1= $2;
+	 printf("About to set var2\n");
 	 var2= $4;
-	 /*check to see is deff is an int or var */
-	 printf("Before ifs\n");
-	 if(var1->value == NULL)
-	 {
-	   fillInVar(var1);
-	 }
-	 printf("After if 1\n"); 
-	 if(var2->value == NULL)
-	 {
-	   fillInVar(var2);
-	 }
-	 printf("Adding %d to %d, Result is: %d\n", var1->value , var2->value, var1->value + var2->value);
+	 numTOVar(var1,var2);
        }
        |
-       TMOVE deff TTO deff
+       TADD VARNAME TTO VARNAME
+       {
+	 char* var1;
+	 char* var2;
+	 var1 = $2;
+	 var2 = $4;
+	 varTOVar(var1, var2);
+
+       }
+       |
+       TMOVE NUM TTO VARNAME
        {
 
        }
+       |
+       TMOVE VARNAME TTO VARNAME
        ;
 
 print_read: /* not sure yet*/
@@ -148,7 +151,7 @@ deff:
        theVar.name = $1;
        theVar.size = 0;
        theVar.value = NULL;
-       printf("Varname made, returning var\n");
+       printf("Varname made %s, returning var\n", theVar.name);
        $$=&theVar;
      }
      ;
@@ -158,6 +161,18 @@ deff:
 
 struct var variables[maxVars];
 int countOfVars = 0;
+
+/*this method finds out how many s's are needed for a number*/
+int getNumSs(int num)
+{
+  int noOfSs = 0;
+  while (num > 0)
+  {
+    noOfSs++;
+    num = num / 10;
+  }
+  
+}
 
 /* this is an error checking method, used to print out all current vars*/
 void printNamesOfVars()
@@ -208,17 +223,60 @@ bool createVars(char* n, int s)
   return true;
 }
 /*method that will fill in a var variable stored already*/
-void fillInVar(struct var* theVar)
+void numTOVar(int num, char* theVar)
 {
   /* first check to see if the var exists, and if so get its pos*/
-  int pos = isVar(theVar->name);
-  if(pos == -1)
+  printf("in num to Var\n");
+  int pos = isVar(theVar);
+  if(pos != -1)
   {
-
+    printf("found var: %s\n", theVar);
+    struct var aVar;
+    aVar.name = theVar;
+    aVar.size = variables[pos].size;
+    aVar.value = variables[pos].value;
+    printf("Var %s filled in with size %d and value %d\n", aVar.name, aVar.size, aVar.value);
+    int newValue = num + aVar.value;
+    printf("Var size: %d new varable size: %d\n", aVar.size,getNumSs(newValue));
+    if(aVar.size >= getNumSs(newValue)){
+      aVar.value = newValue;
+      variables[pos] = aVar;
+    }else {
+      printf("Runtime error: The value %d is too big for var %s\n", newValue , aVar.name);
+      exit(0);
+    }
+  }else {
+    printf("sintax error: Var %s not found\n");
+    exit(0);
   }
-  
 }
 
+void varTOVar(char* var1, char* var2)
+{
+  int pos1 = isVar(var1);
+  if(pos1 == -1){
+    printf("syntax error: Var %s dosent exist\n", *var1);
+    exit(0);
+  }
+  int pos2 = isVar(var2);
+  if(pos2 == -1){
+   printf("syntax error: Var %s dosent exist\n", *var2);
+    exit(0);
+  }
+  struct var newVar;
+  newVar.name = variables[pos2].name;
+  newVar.size = variables[pos2].size;
+  newVar.value = variables[pos1].value + variables[pos2].value;
+  if(newVar.size >= getNumSs(newVar.value)){
+    variables[pos2] = newVar;
+    printf("The new value of %s is %d\n", newVar.name, newVar.value);
+  }else {
+      printf("Runtime error: The value %d is too big for var %s\n", newVar.value , newVar.name);
+      exit(0);
+
+  }
+
+}
 
 int main()
 {
