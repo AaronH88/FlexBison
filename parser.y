@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 typedef int bool;
 #define true 1
 #define false 0
 #define maxVars 50
 /* Maybe new struct for quotes */
+int yylex(void);
 struct var
 {
   char* name;
@@ -38,6 +40,8 @@ void numTOVar(int num, char* theVar);
 void varTOVar(char* var1, char* var2); 
 void moveNumTVar(int num, char* var);
 void moveVarTVar(char* var1, char* var2);
+void readInVars(char* var1);
+void printOutVars(char *var1);
 
  
 %}
@@ -55,6 +59,7 @@ void moveVarTVar(char* var1, char* var2);
 %type<name> VARNAME
 %type<number> INT
 %type<aVar> deff
+%type<name> QUOTE
 
 %%
 program: /* empty */
@@ -79,7 +84,7 @@ smt: decloration FSTOP
     ;
 
 decloration:
-       INT VARNAME
+       INT VARNAME 
        {
 	 //printf("Before calling create Vars\n");
 	 if(createVars($2,$1))
@@ -133,16 +138,59 @@ add_move:
        ;
 
 print_read: /* not sure yet*/
-       TPRINT
+       TPRINT print_vars
        {
-	 printf("Print found\n");
+	 printf("\n");
        }
        |
-       TREAD
+       TREAD read_vars
        {
 	 printf("Read found\n");
+	 
        }
        ;
+
+read_vars: VARNAME
+    {
+      char* var1 = $1;
+      readInVars(var1);
+    }
+    |
+    read_vars COMMA VARNAME
+    {
+      char* var1 = $3;
+      readInVars(var1);
+
+    }
+    ;
+
+print_vars: VARNAME
+           {
+	     char* var1 = $1;
+	     printOutVars(var1);
+	   }
+           |
+	   QUOTE
+	   {
+	     char* str = $1;
+	     printf(" %s", str);
+	   }
+           |
+	   print_vars COMMA VARNAME
+	   {
+	     printf(" ,");
+     	     char* var1 = $3;
+	     printOutVars(var1);
+
+	   }
+           |
+	   print_vars COMMA QUOTE
+	   {
+	     printf(" ,");
+	     char* str = $3;
+	     printf(" %s", str);
+	   }
+           ;
 
 deff:
      NUM
@@ -338,8 +386,47 @@ void moveVarTVar(char* var1, char* var2)
   }
 }
 
-int main()
+void readInVars(char* var1)
 {
+  int pos = isVar(var1);
+  if(pos == -1){
+    printf("syntax error: Var %s dosent exist\n", var1);
+    exit(0);
+  }
+  int newVar = 0;
+  printf("Please enter the int you wish to be in %s\n", var1);
+  scanf("%d", &newVar);
+
+  if(variables[pos].size >= getNumSs(newVar)){
+    variables[pos].value = newVar;
+    printf("The new value of %s is %d\n", var1, newVar);
+  }else {
+    printf("Runtime error: The value %d is too big for var %s\n", newVar , var1);
+    exit(0);
+  }
+
+
+}
+
+
+void printOutVars(char *var1)
+{
+  int pos = isVar(var1);
+  if(pos == -1){
+    printf("syntax error: Var %s dosent exist\n", var1);
+    exit(0);
+  }
+
+  printf(" (Printing %s)%d",variables[pos].name,variables[pos].value);
+
+}
+
+int main(int argc, char *argv[])
+{
+  if(argc > 0)
+    {
+      // yyin = fopen(argv[1],"r");
+    }
 
   for (int i = 0; i < maxVars; i++)
   {
@@ -351,5 +438,10 @@ int main()
 
   }
   yyparse();
+
+  if(argc > 0)
+    {
+      //fclose(yyin);
+    }
   return(0);
 }

@@ -14,7 +14,7 @@ all: compile clean
 
 
 compile: parser lexer
-	$(COMPILER) lexer.yy.c parser.tab.c -o $(OUTPUT) 
+	$(COMPILER) lexer.yy.c parser.tab.c -o $(OUTPUT)  
 
 
 # outputs parser.tab.h, parser.tab.c
