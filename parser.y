@@ -9,6 +9,8 @@ typedef int bool;
 #define maxVars 50
 
 extern FILE *yyin;
+
+bool foundErrors = false;
  
 /* Maybe new struct for quotes */
 int yylex(void);
@@ -63,7 +65,11 @@ program: /* empty */
         |
         TBEGIN FSTOP smts TEND FSTOP
         {
-	  printf("Program complete, exiting\n");
+	  if(!foundErrors){
+	    printf("Program parsing complete,no errors found, exiting\n");
+	  }else{
+	    printf("ERROR!: Program parsing complete, errors found! please review\n");
+	  }
 	  exit(0);
 	}
 	;
@@ -246,7 +252,8 @@ bool createVars(char* n, int s)
   } else{
     /*var has been declared already, syntax error*/
     printf("syntax error: %s declared already\n",n);
-    exit(0);
+    //exit(0);
+    foundErrors = true;
     return false;
   }
     
@@ -272,11 +279,13 @@ void numTOVar(int num, char* theVar)
     printf("Var %s filled in with size %d and value %d\n", aVar.name, aVar.size, aVar.value);
     }else {
       printf("Runtime error: The value %d is too big for var %s\n", newValue , aVar.name);
-      exit(0);
+      //exit(0);
+      foundErrors = true;
     }
   }else {
     printf("sintax error: Var %s not found\n");
-    exit(0);
+    //exit(0);
+    foundErrors = true;
   }
 }
 /*method to add two var values together and store in var2*/
@@ -285,12 +294,16 @@ void varTOVar(char* var1, char* var2)
   int pos1 = isVar(var1);
   if(pos1 == -1){
     printf("syntax error: Var %s dosent exist\n", var1);
-    exit(0);
+    //exit(0);
+    foundErrors = true;
+    
   }
   int pos2 = isVar(var2);
   if(pos2 == -1){
    printf("syntax error: Var %s dosent exist\n", var2);
-    exit(0);
+   //exit(0);
+    foundErrors = true;
+    
   }
   struct var newVar;
   newVar.name = variables[pos2].name;
@@ -301,7 +314,9 @@ void varTOVar(char* var1, char* var2)
     printf("The new value of %s is %d\n", newVar.name, newVar.value);
   }else {
       printf("Runtime error: The value %d is too big for var %s\n", newVar.value , newVar.name);
-      exit(0);
+      //exit(0);
+      foundErrors = true;
+    
 
   }
 
@@ -313,7 +328,9 @@ void moveNumTVar(int num, char* var)
   int pos = isVar(var);
   if(pos == -1){
     printf("syntax error: Var %s dosent exist\n", var);
-    exit(0);
+    //exit(0);
+    foundErrors = true;
+    
   }
   struct var newVar;
   newVar.name = variables[pos].name;
@@ -325,7 +342,9 @@ void moveNumTVar(int num, char* var)
     printf("The new value of %s is %d\n", newVar.name, newVar.value);
   }else {
       printf("Runtime error: The value %d is too big for var %s\n", newVar.value , newVar.name);
-      exit(0);
+      //exit(0);
+      foundErrors = true;
+    
   }
 }
 /*Moves the value in var1 to var2*/
@@ -334,12 +353,16 @@ void moveVarTVar(char* var1, char* var2)
   int pos = isVar(var2);
   if(pos == -1){
     printf("syntax error: Var %s dosent exist\n", *var2);
-    exit(0);
+    //exit(0);
+    foundErrors = true;
+    
   }
   int pos1 = isVar(var1);
   if(pos1 == -1){
     printf("syntax error: Var %s dosent exist\n", *var1);
-    exit(0);
+    //exit(0);
+    foundErrors = true;
+    
   }
   struct var newVar;
   newVar.name = variables[pos].name;
@@ -350,7 +373,8 @@ void moveVarTVar(char* var1, char* var2)
     printf("The new value of %s is %d\n", newVar.name, newVar.value);
   }else {
       printf("Runtime error: The value %d is too big for var %s\n", newVar.value , newVar.name);
-      exit(0);
+      //exit(0);
+      foundErrors = true;
   }
 }
 
@@ -360,7 +384,8 @@ void readInVars(char* var1)
   int pos = isVar(var1);
   if(pos == -1){
     printf("syntax error: Var %s dosent exist\n", var1);
-    exit(0);
+    //exit(0);
+    foundErrors = true;
   }
   int newVar = 0;
   printf("Please enter the int you wish to be in %s\n", var1);
@@ -371,7 +396,8 @@ void readInVars(char* var1)
     printf("The new value of %s is %d\n", var1, newVar);
   }else {
     printf("Runtime error: The value %d is too big for var %s\n", newVar , var1);
-    exit(0);
+    //exit(0);
+    foundErrors = true;
   }
 
 
@@ -383,7 +409,8 @@ void printOutVars(char *var1)
   int pos = isVar(var1);
   if(pos == -1){
     printf("syntax error: Var %s dosent exist\n", var1);
-    exit(0);
+    //exit(0);
+    foundErrors = true;
   }
 
   printf(" (Printing %s)%d",variables[pos].name,variables[pos].value);
