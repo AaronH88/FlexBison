@@ -7,6 +7,9 @@ typedef int bool;
 #define true 1
 #define false 0
 #define maxVars 50
+
+ extern FILE *yyin;
+ 
 /* Maybe new struct for quotes */
 int yylex(void);
 struct var
@@ -425,7 +428,7 @@ int main(int argc, char *argv[])
 {
   if(argc > 0)
     {
-      // yyin = fopen(argv[1],"r");
+      yyin = fopen(argv[1],"r");
     }
 
   for (int i = 0; i < maxVars; i++)
@@ -441,7 +444,7 @@ int main(int argc, char *argv[])
 
   if(argc > 0)
     {
-      //fclose(yyin);
+      fclose(yyin);
     }
   return(0);
 }
