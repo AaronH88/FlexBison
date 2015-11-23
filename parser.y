@@ -8,7 +8,7 @@ typedef int bool;
 #define false 0
 #define maxVars 50
 
- extern FILE *yyin;
+extern FILE *yyin;
  
 /* Maybe new struct for quotes */
 int yylex(void);
@@ -20,10 +20,6 @@ struct var
   int value;
 };
 
-union myType{
-  char * aString;
-  int aInt;
-};
 
 int yyerror(char *s)
 {
@@ -54,14 +50,12 @@ void printOutVars(char *var1);
 {
   int number;
   char* name;
-  union myType* myT1;
   struct var* aVar;
 }
 
 %type<number> NUM
 %type<name> VARNAME
 %type<number> INT
-%type<aVar> deff
 %type<name> QUOTE
 
 %%
@@ -101,11 +95,9 @@ decloration:
 add_move:
        TADD NUM TTO VARNAME
        {
-	 printf("in add_move\n");
 	 
 	 char* var2;
 	 int var1= $2;
-	 printf("About to set var2\n");
 	 var2= $4;
 	 numTOVar(var1,var2);
        }
@@ -124,7 +116,6 @@ add_move:
        {
 	 int num = $2;
 	 char* var = $4;
-	 printf("Moving num to var\n");
 	 moveNumTVar(num, var);
        }
        |
@@ -148,7 +139,6 @@ print_read: /* not sure yet*/
        |
        TREAD read_vars
        {
-	 printf("Read found\n");
 	 
        }
        ;
@@ -195,32 +185,6 @@ print_vars: VARNAME
 	   }
            ;
 
-deff:
-     NUM
-     {
-       //printf("Making Numbers\n");
-       struct var theVar;
-       //printf("Made var\n");
-       theVar.name = "";
-       //printf("Set var name\n");
-       theVar.size = 0;
-       theVar.value = $1;
-       //printf("Var made, returning var\n");
-       $$=&theVar;
-     }
-     |
-     VARNAME
-     {
-       printf("Got varname, making var\n");
-       /* make struct */
-       struct var theVar;
-       theVar.name = $1;
-       theVar.size = 0;
-       theVar.value = NULL;
-       printf("Varname made %s, returning var\n", theVar.name);
-       $$=&theVar;
-     }
-     ;
 
 %%
 
@@ -237,7 +201,7 @@ int getNumSs(int num)
     noOfSs++;
     num = num / 10;
   }
-  
+  return noOfSs;
 }
 
 /* this is an error checking method, used to print out all current vars*/
@@ -301,12 +265,11 @@ void numTOVar(int num, char* theVar)
     aVar.name = theVar;
     aVar.size = variables[pos].size;
     aVar.value = variables[pos].value;
-    printf("Var %s filled in with size %d and value %d\n", aVar.name, aVar.size, aVar.value);
     int newValue = num + aVar.value;
-    printf("Var size: %d new varable size: %d\n", aVar.size,getNumSs(newValue));
     if(aVar.size >= getNumSs(newValue)){
       aVar.value = newValue;
       variables[pos] = aVar;
+    printf("Var %s filled in with size %d and value %d\n", aVar.name, aVar.size, aVar.value);
     }else {
       printf("Runtime error: The value %d is too big for var %s\n", newValue , aVar.name);
       exit(0);
@@ -316,7 +279,7 @@ void numTOVar(int num, char* theVar)
     exit(0);
   }
 }
-
+/*method to add two var values together and store in var2*/
 void varTOVar(char* var1, char* var2)
 {
   int pos1 = isVar(var1);
@@ -344,6 +307,7 @@ void varTOVar(char* var1, char* var2)
 
 }
 
+/*moves a number into a var*/
 void moveNumTVar(int num, char* var)
 {
   int pos = isVar(var);
@@ -355,6 +319,7 @@ void moveNumTVar(int num, char* var)
   newVar.name = variables[pos].name;
   newVar.size = variables[pos].size;
   newVar.value = num;
+  //printf("DEBUGG: var size is %d, value size is %d\n", newVar.size, getNumSs(newVar.value));
   if(newVar.size >= getNumSs(newVar.value)){
     variables[pos] = newVar;
     printf("The new value of %s is %d\n", newVar.name, newVar.value);
@@ -363,7 +328,7 @@ void moveNumTVar(int num, char* var)
       exit(0);
   }
 }
-
+/*Moves the value in var1 to var2*/
 void moveVarTVar(char* var1, char* var2)
 {
   int pos = isVar(var2);
@@ -389,6 +354,7 @@ void moveVarTVar(char* var1, char* var2)
   }
 }
 
+/*method that will take in new ints and srote it in given var*/
 void readInVars(char* var1)
 {
   int pos = isVar(var1);
@@ -411,7 +377,7 @@ void readInVars(char* var1)
 
 }
 
-
+/*method that will print out vars*/
 void printOutVars(char *var1)
 {
   int pos = isVar(var1);
