@@ -213,7 +213,8 @@ int getNumSs(int num)
 /* this is an error checking method, used to print out all current vars*/
 void printNamesOfVars()
 {
-  for (int i = 0; i < maxVars; i++)
+  int i = 0;
+  for (i = 0; i < maxVars; i++)
     {
       printf("Var name at pos %d is %s\n", i, variables[i].name);
 
@@ -226,7 +227,8 @@ int isVar(char* name)
 {
   int pos = -1;
   //printNamesOfVars();
-  for (int i = 0; i < maxVars; i++)
+  int i = 0;
+  for (i = 0; i < maxVars; i++)
   {
     if(!strcmp(variables[i].name, name)){
       return i;
@@ -423,8 +425,8 @@ int main(int argc, char *argv[])
     {
       yyin = fopen(argv[1],"r");
     }
-
-  for (int i = 0; i < maxVars; i++)
+  int i = 0;
+  for (i = 0; i < maxVars; i++)
   {
     struct var aVar;
     aVar.name = "";
