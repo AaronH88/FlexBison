@@ -1,0 +1,15 @@
+BEGIN.
+
+SSSS X35_.
+SSSS Y3R5T.
+SSSSSS Z.
+
+PRINT "Please enter a number?".
+READ Y3R5T, Z.
+
+MOVE 10000000 TO Z.
+ADD X35_ TO Z.
+MOVE Y3R5T TO Z.
+PRINT X35_," + ",Y3R5T,"=",Z.
+
+END.
